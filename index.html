@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Team - Transcript Analyzer (ENG ver.)</title>
+    <style>
+        :root {
+            --dark: #222831;
+            --dark-gray: #393E46;
+            --primary: #00ADB5;
+            --light: #EEEEEE;
+            --danger: #FF2E63;
+            --success: #00ADB5;
+            --warning: #FFC93C;
+        }
+        
+        body {
+            background-image: url('https://images.pexels.com/photos/3182773/pexels-photo-3182773.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #222831 0%, #393E46 100%);
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(238, 238, 238, 0.1);
+            margin: -25px -25px 2rem -25px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        h1 {
+            color: #EEEEEE;
+            text-align: center;
+            margin-bottom: 0;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            position: relative;
+            display: inline-block;
+            padding: 0 30px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #00ADB5;
+            border-radius: 3px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: vertical;
+            transition: all 0.3s;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            background-color: white;
+            color: var(--dark);
+        }
+        
+        textarea:focus {
+            border-color: #00ADB5;
+            box-shadow: 0 0 0 3px rgba(0, 173, 181, 0.2), 
+                        inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            outline: none;
+        }
+        
+        .btn {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .expand-transcript-container .btn {
+    background-color: var(--dark-gray) !important;
+    margin: 0 auto;
+}
+
+.expand-transcript-container .btn:hover {
+    background-color: var(--primary) !important;
+    transform: translateY(-2px);
+}
+        .btn:hover {
+            background-color: #008a91;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:hover:after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(25, 25);
+                opacity: 0;
+            }
+        }
+        
+        .btn i {
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .btn.analyzing i {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .file-upload {
+            display: none;
+        }
+        
+        .file-upload-label {
+            background-color: var(--dark-gray);
+            color: var(--light);
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px dashed #393E46;
+            text-align: center;
+        }
+        
+        .file-upload-label:hover {
+            background-color: #2d3238;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #00ADB5;
+            background: rgba(0, 173, 181, 0.05);
+        }
+        
+        .file-upload-label.drag-over {
+            border-color: #00ADB5;
+            background: rgba(0, 173, 181, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .results-container {
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .summary-card {
+            background: var(--dark);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: var(--light);
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            flex: 1;
+            min-width: 120px;
+            position: relative;
+        }
+        
+        .stat-box:not(:last-child):after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 40px;
+            width: 1px;
+            background: rgba(238, 238, 238, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .stat-value:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 2px;
+            background: #00ADB5;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: rgba(238, 238, 238, 0.8);
+        }
+        
+        .risk-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+        
+        .risk-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            --i: 0;
+            transition-delay: calc(var(--i) * 0.05s);
+        }
+        
+        .risk-item:not(:last-child):after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 60px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(57, 62, 70, 0.2), rgba(57, 62, 70, 0.05));
+        }
+        
+        .risk-item:hover {
+            background-color: rgba(0, 173, 181, 0.05);
+        }
+        
+        .risk-item.checked {
+            background-color: rgba(0, 173, 181, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .risk-item.checked:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .risk-icon {
+            margin-right: 15px;
+            font-size: 20px;
+            min-width: 24px;
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+        
+        .risk-icon i {
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .risk-icon .checked-icon {
+            opacity: 0;
+            transform: scale(0) rotate(-90deg);
+            color: var(--primary);
+        }
+        
+        .risk-item.checked .risk-icon .material-icons:first-child {
+            opacity: 0;
+            transform: scale(0) rotate(90deg);
+        }
+        
+        .risk-item.checked .risk-icon .checked-icon {
+            opacity: 1;
+            transform: scale(1) rotate(0);
+            animation: checkBounce 0.6s ease;
+        }
+        
+        @keyframes checkBounce {
+            0%, 100% { transform: scale(1); }
+            30% { transform: scale(1.3); }
+            50% { transform: scale(0.9); }
+            70% { transform: scale(1.1); }
+        }
+        
+        .risk-item:hover .risk-icon i {
+            transform: scale(1.2);
+        }
+        
+        .risk-item.checked:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(0, 173, 181, 0.3);
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            opacity: 0;
+        }
+        
+        .risk-item.checked:after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .risk-content {
+            flex: 1;
+        }
+        
+        .risk-phrase {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: var(--danger);
+            transition: color 0.2s;
+        }
+        
+        .risk-item.checked .risk-phrase {
+            color: var(--primary);
+        }
+        
+        .risk-context {
+            font-size: 14px;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .risk-time {
+            background: rgba(0, 173, 181, 0.1);
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+            margin-left: 8px;
+        }
+        
+        .risk-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: var(--primary);
+            transition: width 0.5s ease;
+        }
+        
+        .risk-item.checked .risk-progress {
+            width: 100%;
+        }
+        
+        .no-risks {
+            padding: 30px;
+            text-align: center;
+            color: var(--primary);
+            font-size: 18px;
+        }
+        
+        .no-risks i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .highlight {
+            background-color: rgba(255, 206, 86, 0.3);
+            padding: 2px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        
+        .highlight:hover {
+            background-color: rgba(255, 206, 86, 0.5);
+        }
+        
+        .highlight.active {
+            background-color: rgba(255, 206, 86, 0.7);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { background-color: rgba(255, 206, 86, 0.7); }
+            50% { background-color: rgba(255, 206, 86, 0.4); }
+            100% { background-color: rgba(255, 206, 86, 0.7); }
+        }
+        
+        .copy-btn {
+            background: var(--dark-gray);
+            color: var(--light);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+
+        .file-item:hover {
+            background-color: rgba(0, 173, 181, 0.05);
+            border-color: rgba(0, 173, 181, 0.2);
+        }
+
+        .file-item.active {
+            background-color: rgba(0, 173, 181, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+
+        .file-name {
+            flex: 1;
+            margin-left: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+        }
+        
+        .file-remove {
+            color: var(--dark-gray);
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.2s;
+        }
+        
+        .file-remove:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            opacity: 0;
+            z-index: 100;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(500px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .completion-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideDown 0.5s forwards, fadeOut 0.5s 2.5s forwards;
+            display: none;
+        }
+        
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+ #themeToggleContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999;
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--light);
+    padding: 6px 12px;
+    border-radius: 25px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background 0.3s;
+}
+
+.theme-toggle input[type="checkbox"] {
+    appearance: none;
+    width: 40px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 20px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.theme-toggle input[type="checkbox"]::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle input[type="checkbox"]:checked {
+    background: var(--primary);
+}
+
+.theme-toggle input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+
+.theme-toggle .label-text {
+    font-size: 20px;
+    margin-left: 10px;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+}
+/* 🌙 Dark mode - Comfortable appearance for transcript */
+.dark-transcript #highlightContainer,
+.dark-transcript #transcriptInput {
+    
+    background-color: #1e1e2e !important;  /* deep, soft navy blue */
+    color: #e0e0e0 !important;             /* soft light gray */
+    border-color: #444 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Risk highlights in dark mode */
+.dark-transcript .highlight {
+    background-color: #ff6f61;    /* bright coral red */
+    color: #fff;
+    font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 3px;
+}
+
+/* Hover and active states */
+.dark-transcript .highlight:hover,
+.dark-transcript .highlight.active {
+    background-color: #ff3b30;   /* brighter red on hover */
+    color: #ffffff;
+    text-shadow: 0 0 2px #fff;
+}
+
+        @media (max-width: 768px) {
+            .stat-box {
+                min-width: 50%;
+            }
+            
+            .stat-box:not(:last-child):after {
+                display: none;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn, .file-upload-label {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        #languageSwitcher {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 8px 10px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 4px 6px;
+    border-radius: 20px;
+}
+
+.lang-option img {
+    width: 20px;
+    height: auto;
+    margin-right: 6px;
+    border-radius: 3px;
+}
+
+.lang-option span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.lang-option:hover {
+    background-color: var(--primary);
+}
+
+.lang-option:hover span {
+    color: #fff;
+}
+
+.lang-option:hover img {
+    filter: brightness(1.1);
+}
+
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+<!-- toggle-->
+<div id="themeToggleContainer">
+  <label class="theme-toggle">
+    <input type="checkbox" id="themeToggle">
+    <span class="slider"></span>
+    <span class="label-text">
+      <i class="material-icons" id="themeIcon">dark_mode</i>
+    </span>
+  </label>
+</div>
+    <div id="languageSwitcher">
+  <div class="lang-option" onclick="switchLanguage('en')">
+    <img src="https://flagcdn.com/w40/gb.png" alt="English">
+    <span>EN</span>
+  </div>
+  <div class="lang-option" onclick="switchLanguage('jp')">
+    <img src="https://flagcdn.com/w40/jp.png" alt="Japanese">
+    <span>JP</span>
+  </div>
+  <div class="lang-option" onclick="switchLanguage('kr')">
+    <img src="https://flagcdn.com/w40/kr.png" alt="Korean">
+    <span>KR</span>
+  </div>
+</div>
+
+
+    <div class="container">
+        <div class="header">
+            <h1>QC Team - Transcript Analyzer (ENG ver.)</h1>
+        </div>
+        
+        <div>
+            <textarea id="transcriptInput" placeholder="Paste your conversation transcript here...&#10;Example format:&#10;&#10;[09:30:00 - 09:31:00] Hello, trust me this is risk free!&#10;[09:31:00 - 09:32:00] We can meet in London."></textarea>
+            
+            <div class="controls">
+                <div>
+                    <input type="file" id="fileUpload" accept=".txt,.csv" class="file-upload" multiple>
+                    <label for="fileUpload" class="file-upload-label" id="fileUploadLabel">
+                        <i class="material-icons">upload</i> Upload Transcript(s)
+                    </label>
+                </div>
+                <button class="btn" onclick="analyzeTranscript()">
+                    <i class="material-icons">search</i> Analyze Transcript
+                </button>
+            </div>
+            <div style="margin-top: 20px;">
+    <h3>Add Your Own Risky Keyword</h3>
+    <input type="text" id="userName" placeholder="Your name" style="margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+    <input type="text" id="newKeyword" placeholder="Enter new keyword/phrase" style="margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+    <button class="btn" onclick="submitKeyword()" style="margin-top: 10px;">
+        <i class="material-icons">send</i> Submit Keyword
+    </button>
+</div>
+
+            
+            <div id="fileList" class="file-list" style="display: none;">
+                <h3 style="margin-top: 0; margin-bottom: 10px;">Uploaded Files</h3>
+                <div id="fileItems"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="resultsContainer" class="results-container" style="display: none;">
+        <div class="container">
+            <div class="summary-card">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalRisks">0</div>
+                    <div class="stat-label">Total Risks Found</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="uniqueRisks">0</div>
+                    <div class="stat-label">Unique Risk Types</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="firstRiskTime">--:--:--</div>
+                    <div class="stat-label">First Risk At</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="lastRiskTime">--:--:--</div>
+                    <div class="stat-label">Last Risk At</div>
+                </div>
+            </div>
+            
+            <div class="risk-list" id="riskList">
+                <!-- Risks will be inserted here -->
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="copy-btn" onclick="copyResults()">
+                    <i class="material-icons">content_copy</i> Copy Results
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="completion-message" id="completionMessage">
+        <i class="material-icons" style="vertical-align: middle;">celebration</i>
+        All risks reviewed! Great job!
+    </div>
+
+    <audio id="checkSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3"></audio>
+
+    <script>
+        // Enhanced risk phrases list (add your full list here)
+       const riskyPhrases = [
+  "We can meet in real life","Quantum AI","QuantumAi","Quantum Ai","Quantum","quantum","London","Greece","Europe","have a contract","takes from your commission","Immediate AI","Calling from the online trading platform","company takes a commission",
+  "Elon Musk","Calling you from UK","We have a contract with","we work with the banks","we have a cooperation with","Dubai","Japanese Banks","earn profits every day","you own shares","you become a shareholder","I take commission from your profits","company will deduct tax from your profit","I make money when you make money","the advisor profits from your returns","you don’t need to trade","we don’t trade","i will give you 100% bonus",
+  "Indore","Mumbai","India","Powered by Insosys","Nirmala Sitharaman","Calling from online trading platform","you can get around","cash back","all things will be done by your senior account manager","We have a lot of offices","We cooperate with Binance",
+  "one time investment","turkey","germany","calling you from usa","united states","Canada","calling you from uk","united kingdom","Russia","south korea","saudi arabia","qatar","uae","Pakistan","Amex- cant be used right now", "300(assets, 275+ in ProxTrend)",
+  "Minus","Commission","Nirwala Sitharam","Sundar Pichai","Nirmila Sita Raman","Sadhguru","we are regulated by the government","we are a government-certified platform","we are registered in the UK","we are FCA approved","partnered with big banks",
+  "we are in partnership with Visa","affiliated with Mastercard","we have legal permission to invest on your behalf","we have a legal license","approved by European Union","we cooperate with the government","registered with the SEC","we work directly with central banks",
+  "goverment","you will definitely profit","you can't lose money","zero risk","guaranteed profit","100% success rate","you will double your money","daily returns guaranteed","money back guarantee","we have never lost a client’s money",
+  "minimum risk, maximum profit","earn passive income every day","secure income stream","calling from the head office","we are based in ","our company is in Singapore","we are in partnership with Dubai Financial Authority","calling from our London office",
+  "our main branch is in Germany","we have offices all over Europe","we’re calling you from the ","AI-based guaranteed system","our robot does all the work","quantum trading guarantees accuracy","blockchain-protected returns","our system predicts the market perfectly",
+  "real-time profit bot","trading powered by NASA AI","we use Elon Musk’s algorithm","your investment will be safe", "you can expect", "as much as you deposit","do not worry", "it is not risky", "risk free assets", "minimum risk","It’s a win-win situation", "daily profits", "there’s zero risk here",
+  "you can’t lose", "You will never see a negative", "No risk","on a daily basis", "You just need to start the basic minimum investment","These markets are profitable", "we can easily earn", "You will earn", "you will be earning", "you are going to generate", "return is possible",
+  "You will be making", "%50 of the deposit", "you will generate", "%100", "without any loss","without any risks", "There’s no way to lose money", "Expect your deposit to double","profit within one month", "profit within a month", "Small profits everyday","you will have a profit of", "you will be earning around", "you will be able to to making up to","you are gonna be getting daily", "always gain from trades", "minimum profit is",
+  "you are getting the profit of daily basis", "trust me", "I assure you", "without any doubts", "definitely", "One hundred percent", "generating money", "automatic system","passive ıncome", "three hundred plus assets", "It helps you to prevent to lose any money",
+  "on the daily basis","you need my approval to withdraw", "support will call to guide withdrawal","you can withdraw but only with advisor’s permission","I hold your portfolio so I must approve","need approval to withdraw", "advisor must allow withdrawal",
+  "withdrawal only after speaking to manager", "Just withdraw it then","You need to go to the site and request a withdrawal yourself","apply for the withdrawal", "cancel your withdrawal request","There's a support team there Support", "Go to the website and apply for withdrawal",
+  "withdrawal request", "You can not withdraw at the moment","You have to make some profit first", "You can do it later on your own","We are not responsible for that", "Ask someone else to help you","Your trades are open", "you can not withdraw the amount",
+  "Let me check the trades margin then we can do the withdraw","documents are not approved","it will be done automatically", "you do not need to do anything.","Ai will be generating automatically", "it will be opened automatically",
+  "it will run automatically", "the AI is going to be trading on behalf of you","on behalf of you", "you just need to click", "you do not have to trade manually","it will be trading on behalf of you", "AI will do it", "AI will generate daily profits",
+  "daily profits automatically", "the system makes profit", "AI will do automatic","automatic trading platform", "auto tools work on your behalf","You don’t have to do anything all thing will be done by AI", "Artificial intelligence",
+  "You just need to give command", "You don't need to do anything","You are not gonna doing anything", "AI does all the trading","you just sit and watch", "AI starts trade", "fully automatic, no action needed from your side",
+  "robot trades 24/7 for you", "If the market is not going well it is automatically closed your trade","AI is going to close the trade at the highest profit", "by your self manually","It will be done by the AI software", "AI is going to set up the limits on your trade","autocratically stop so you will not face any lost", "everything will be automatic","invest in AI", "on your Behalf", "Robot","gold is going up","market will rise because of rate cut","all the stocks are gonna increase","is gonna go up","will go up","will go down",
+  "is gonna go down","after upcoming report","they said it will go up","it will rise continuously","it will effect the market","it will go up again","gold will go to","i’ve been in this business for years,i know what’s coming","the market is exploding right now","i don’t have time to wait for you.","i am not your slave.",
+  "do you know how am i? whom are you talking?","yeah you are indian and if you want money you are selling you family.","don’t teach me", "do you have more knowledge than me?","kill","fool","idiot","stupid","i will let you know after deposit","if you will do it tomorrow you can not deposit","if you will do it tomorrow you can not get the bonus", "senior account manager","personal senior account manager","financial advisor","commission","russia is biggest provider of crude oil",
+  "iran is a biggest supplier of crude oil","portfolio manager","you do not have to sit in front of mobile laptop","they are giving the command of your ai system","you account manager told me that i don’t have to do anything all things will be done by your senior account manager",
+  "your account manager said me that i don’t have to do anything the ai will do trading. you just need to put the amount and take out the amount", "don’t have to do anything the ai will do trading", "you can only do the trades in the crude oil.",
+  "you can not trade in any other market except currency market","commodities market is the safest market","currency market is a risky market","in a commodities market the risk is low and profit is high","you can only do the trade with currency","you just need to give commands then your trades will close automatically.",
+  "once your trades will reach at certain points it will close automatically.","there is no loss because we are using automatic tools","you done have to click on by or sell you just need to follow the instruction of senior account manager","there is no loss", "your payment is decline so you have to deposit again click on deposit",
+  "your payment is declined","i have send you the zoom link just join that","ok i am dropping the call just join me on zoom", "your voice is breaking come on zoom we will talk on zoom",
+  "we will talk on zoom","instagram","whatsapp","snapchat","your voice is not clear","zoom audible","can we talk on zoom","200 dollars is just for registration and getting the service of senior account manager.",
+  "to start the trade we have to add some more margin","200 is for risk management","do you think that with 200 dollars you can open any single trade in this international market? we need to add some more margin",
+  "200 dollars is just for registration","we take commissions from your profit","commission can go up to","they'll give me 2% of it","300(assets, 275+ in ProxTrend)","affiliation", "partnership","Maintenance","Contract", "goes up","goes down","Finance Department","Erika", "financial assistance","Finance Department",
+  "you'll earn",
+  "you are earning",
+  "you’re going to earn",
+  "you’re gonna earn",
+  "you will make profit",
+  "you will be making money",
+  "you are gonna be earning",
+  "you can expect profit",
+  "you’ll be making a return",
+  "you will gain",
+  "you will definitely profit",
+  "you will 100% profit",
+  "there is no way to lose",
+  "guaranteed earnings",
+  "guaranteed return",
+  "no loss, only gain",
+  "your return is secured",
+  "this is a win-win situation",
+  "it’s a guaranteed profit",
+  "daily guaranteed income",
+  "returns are promised",
+  "this system always generates income",
+  "earnings are predictable",
+  "your profit is certain",
+  "definitely profitable",
+  "you will earn with no effort","guaranteed","daily profit","earn more","four hundred plus assets","Three hundred plus assets","four hundred plus assets",
+];
+        
+        // Store uploaded files and their content
+        const uploadedFiles = [];
+        let currentFileIndex = 0;
+        const checkSound = document.getElementById('checkSound');
+        const completionMessage = document.getElementById('completionMessage');
+        
+        // Initialize file upload with order preservation
+        document.getElementById('fileUpload').addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            
+            // Show loading state
+            const uploadLabel = document.getElementById('fileUploadLabel');
+            const originalLabelContent = uploadLabel.innerHTML;
+            uploadLabel.innerHTML = `<i class="material-icons">hourglass_empty</i> Processing ${files.length} files...`;
+            uploadLabel.style.pointerEvents = 'none';
+            
+            try {
+                // Process files sequentially to maintain order
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Skip if file already exists
+                    if (uploadedFiles.some(f => f.name === file.name)) continue;
+                    
+                    // Update loading status
+                    uploadLabel.innerHTML = `<i class="material-icons">hourglass_empty</i> Processing ${i+1}/${files.length}: ${file.name}`;
+                    
+                    // Read file content with Promise
+                    const fileContent = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = event => resolve(event.target.result);
+                        reader.onerror = error => reject(error);
+                        reader.readAsText(file);
+                    });
+                    
+                    // Add to uploaded files array
+                    uploadedFiles.push({
+                        name: file.name,
+                        content: fileContent,
+                        risks: [],
+                        checkedRisks: []
+                    });
+                }
+                
+                // Update UI
+                updateFileList();
+                if (uploadedFiles.length > 0) {
+                    loadFile(0);
+                }
+                
+            } catch (error) {
+                console.error('Error reading files:', error);
+                alert('Error reading one or more files. Please try again.');
+            } finally {
+                // Reset upload label and input
+                uploadLabel.innerHTML = originalLabelContent;
+                uploadLabel.style.pointerEvents = '';
+                document.getElementById('fileUpload').value = ''; // Reset input to allow adding more files
+            }
+        });
+
+        // Drag and drop functionality
+        const fileUploadLabel = document.getElementById('fileUploadLabel');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUploadLabel.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUploadLabel.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUploadLabel.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            fileUploadLabel.classList.add('drag-over');
+        }
+        
+        function unhighlight() {
+            fileUploadLabel.classList.remove('drag-over');
+        }
+        
+        fileUploadLabel.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = Array.from(dt.files);
+            
+            // Create a new DataTransfer object to maintain file order
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            
+            // Assign to file input
+            const fileInput = document.getElementById('fileUpload');
+            fileInput.files = dataTransfer.files;
+            
+            // Trigger change event
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+        }
+        
+        function updateFileList() {
+            const fileItems = document.getElementById('fileItems');
+            fileItems.innerHTML = '';
+            
+            if (uploadedFiles.length === 0) {
+                document.getElementById('fileList').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('fileList').style.display = 'block';
+            
+            uploadedFiles.forEach((file, index) => {
+                const fileElement = document.createElement('div');
+                fileElement.className = `file-item ${index === currentFileIndex ? 'active' : ''}`;
+                fileElement.innerHTML = `
+                    <span style="min-width: 25px; color: var(--dark-gray);">${index + 1}.</span>
+                    <i class="material-icons">description</i>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-remove" onclick="removeFile(${index}, event)">
+                        <i class="material-icons">close</i>
+                    </div>
+                `;
+                fileElement.onclick = () => loadFile(index);
+                fileItems.appendChild(fileElement);
+            });
+        }
+        
+        function loadFile(index) {
+            if (index < 0 || index >= uploadedFiles.length) return;
+            
+            currentFileIndex = index;
+            document.getElementById('transcriptInput').value = uploadedFiles[index].content;
+            updateFileList();
+            
+            // Load checked state from local storage
+            loadCheckedState();
+            
+            // Auto-analyze if risks were previously found
+            if (uploadedFiles[index].risks.length > 0) {
+                showResultsForFile(index);
+            } else {
+                document.getElementById('resultsContainer').style.display = 'none';
+            }
+        }
+        
+        function loadCheckedState() {
+            if (uploadedFiles.length > 0) {
+                const fileData = uploadedFiles[currentFileIndex];
+                const savedData = localStorage.getItem(`checkedRisks_${fileData.name}`);
+                if (savedData) {
+                    fileData.checkedRisks = JSON.parse(savedData);
+                }
+            }
+        }
+        
+        function saveCheckedState() {
+            if (uploadedFiles.length > 0) {
+                const fileData = uploadedFiles[currentFileIndex];
+                localStorage.setItem(`checkedRisks_${fileData.name}`, JSON.stringify(fileData.checkedRisks));
+            }
+        }
+        
+        function removeFile(index, event) {
+            event.stopPropagation();
+            // Remove saved state from local storage
+            if (uploadedFiles[index]) {
+                localStorage.removeItem(`checkedRisks_${uploadedFiles[index].name}`);
+            }
+            uploadedFiles.splice(index, 1);
+            
+            if (currentFileIndex >= index) {
+                currentFileIndex = Math.max(0, currentFileIndex - 1);
+            }
+            
+            if (uploadedFiles.length > 0) {
+                loadFile(currentFileIndex);
+            } else {
+                document.getElementById('transcriptInput').value = '';
+                document.getElementById('fileList').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+            }
+            
+            updateFileList();
+        }
+        
+        function analyzeTranscript() {
+            const btn = document.querySelector('.btn');
+            btn.classList.add('analyzing');
+            
+            const transcript = document.getElementById('transcriptInput').value.trim();
+            const resultsContainer = document.getElementById('resultsContainer');
+            const riskList = document.getElementById('riskList');
+            
+            if (!transcript) {
+                alert('Please paste or upload a transcript first');
+                btn.classList.remove('analyzing');
+                return;
+            }
+            
+            // Reset UI
+            riskList.innerHTML = '';
+            resultsContainer.style.display = 'none';
+            
+            // Case-insensitive regex search
+            const riskyRegex = new RegExp(riskyPhrases.join("|"), "gi");
+            const matches = [...transcript.matchAll(riskyRegex)];
+            
+            // Find timestamps if they exist
+            const timeRegex = /\[(\d{1,2}:\d{2}:\d{2})\s*-\s*\d{1,2}:\d{2}:\d{2}\]/g;
+            const timeMatches = [...transcript.matchAll(timeRegex)];
+            const timePositions = timeMatches.map(match => ({
+                time: match[1],
+                index: match.index
+            }));
+            
+            // Process matches
+           if (matches.length === 0) {
+    riskList.innerHTML = `
+        <div class="no-risks">
+            <i class="material-icons">check_circle</i>
+            <div>No risky phrases detected in this transcript</div>
+        </div>
+        <div class="expand-transcript-container" style="text-align: center; margin-top: 20px;">
+            <button class="btn" onclick="showTranscript()" style="background-color: var(--dark-gray);">
+                <i class="material-icons">visibility</i> Show Transcript
+            </button>
+        </div>
+    `;
+    document.getElementById('totalRisks').textContent = '0';
+    document.getElementById('uniqueRisks').textContent = '0';
+    document.getElementById('firstRiskTime').textContent = '--:--:--';
+    document.getElementById('lastRiskTime').textContent = '--:--:--';
+    resultsContainer.style.display = 'block';
+    
+    // Store empty risks for this file
+    if (uploadedFiles.length > 0) {
+        uploadedFiles[currentFileIndex].risks = [];
+        uploadedFiles[currentFileIndex].checkedRisks = [];
+        saveCheckedState();
+    }
+    
+    btn.classList.remove('analyzing');
+    return;
+}
+            
+            // Process and deduplicate matches
+            const uniquePhrases = new Set();
+            const riskItems = [];
+            let firstTime = null;
+            let lastTime = null;
+            
+            matches.forEach((match, matchIndex) => {
+                const phrase = match[0].toLowerCase();
+                const phraseIndex = match.index;
+                let foundTime = null;
+                
+                // Find the most recent timestamp before this phrase
+                for (let i = timePositions.length - 1; i >= 0; i--) {
+                    if (timePositions[i].index < phraseIndex) {
+                        foundTime = timePositions[i].time;
+                        if (!firstTime) firstTime = foundTime;
+                        lastTime = foundTime;
+                        break;
+                    }
+                }
+                
+                uniquePhrases.add(phrase);
+                riskItems.push({
+                    phrase: match[0], // Original case
+                    time: foundTime,
+                    index: phraseIndex,
+                    matchIndex: matchIndex
+                });
+            });
+            
+            // Sort by position in transcript
+            riskItems.sort((a, b) => a.index - b.index);
+            
+            // Store risks for this file
+            if (uploadedFiles.length > 0) {
+                uploadedFiles[currentFileIndex].risks = riskItems;
+                // Initialize checkedRisks array if it doesn't exist
+                if (!uploadedFiles[currentFileIndex].checkedRisks) {
+                    uploadedFiles[currentFileIndex].checkedRisks = [];
+                }
+                saveCheckedState();
+            }
+            
+            // Generate risk list HTML
+            riskItems.forEach((item, itemIndex) => {
+                const riskElement = document.createElement('div');
+                riskElement.className = 'risk-item';
+                riskElement.style.setProperty('--i', itemIndex);
+                
+                if (uploadedFiles.length > 0 && uploadedFiles[currentFileIndex].checkedRisks.includes(itemIndex)) {
+                    riskElement.classList.add('checked');
+                }
+                
+                riskElement.innerHTML = `
+                    <div class="risk-icon">
+                        <i class="material-icons">warning</i>
+                        <i class="material-icons checked-icon">check_circle</i>
+                    </div>
+                    <div class="risk-content">
+                        <div class="risk-phrase">${item.phrase}</div>
+                        <div class="risk-context">
+                            Found in transcript
+                            ${item.time ? `<span class="risk-time">${item.time}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="risk-progress"></div>
+                `;
+                
+                riskElement.onclick = () => {
+                    highlightRiskInText(item.matchIndex);
+                    // Toggle checked state
+                    riskElement.classList.toggle('checked');
+                    // Play sound
+                    checkSound.currentTime = 0;
+                    checkSound.play();
+                    // Update the checkedRisks array for this file
+                    if (uploadedFiles.length > 0) {
+                        const checkedIndex = uploadedFiles[currentFileIndex].checkedRisks.indexOf(itemIndex);
+                        if (checkedIndex === -1) {
+                            uploadedFiles[currentFileIndex].checkedRisks.push(itemIndex);
+                        } else {
+                            uploadedFiles[currentFileIndex].checkedRisks.splice(checkedIndex, 1);
+                        }
+                        saveCheckedState();
+                        checkAllRisksCompleted();
+                    }
+                };
+                
+                riskList.appendChild(riskElement);
+            });
+            
+            // Update summary stats
+            document.getElementById('totalRisks').textContent = matches.length;
+            document.getElementById('uniqueRisks').textContent = uniquePhrases.size;
+            document.getElementById('firstRiskTime').textContent = firstTime || '--:--:--';
+            document.getElementById('lastRiskTime').textContent = lastTime || '--:--:--';
+            
+            // Highlight risks in original text
+            highlightRisksInTranscript(riskItems);
+            
+            // Show results
+            resultsContainer.style.display = 'block';
+            btn.classList.remove('analyzing');
+        }
+        
+        function checkAllRisksCompleted() {
+            const totalRisks = document.querySelectorAll('.risk-item').length;
+            const checkedRisks = document.querySelectorAll('.risk-item.checked').length;
+            
+            if (totalRisks > 0 && totalRisks === checkedRisks) {
+                createConfetti();
+                showCompletionMessage();
+            }
+        }
+        
+        function createConfetti() {
+            const container = document.querySelector('.risk-list');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = `hsl(${Math.random() * 60 + 150}, 80%, 60%)`;
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        function showCompletionMessage() {
+            completionMessage.style.display = 'block';
+            setTimeout(() => {
+                completionMessage.style.display = 'none';
+            }, 3000);
+        }
+        
+        function showResultsForFile(fileIndex) {
+            const riskItems = uploadedFiles[fileIndex].risks;
+            const riskList = document.getElementById('riskList');
+            
+            riskList.innerHTML = '';
+            
+            if (riskItems.length === 0) {
+                riskList.innerHTML = `
+                    <div class="no-risks">
+                        <i class="material-icons">check_circle</i>
+                        <div>No risky phrases detected in this transcript</div>
+                    </div>
+                `;
+            } else {
+                riskItems.forEach((item, itemIndex) => {
+                    const riskElement = document.createElement('div');
+                    riskElement.className = 'risk-item';
+                    riskElement.style.setProperty('--i', itemIndex);
+                    
+                    if (uploadedFiles[fileIndex].checkedRisks.includes(itemIndex)) {
+                        riskElement.classList.add('checked');
+                    }
+                    
+                    riskElement.innerHTML = `
+                        <div class="risk-icon">
+                            <i class="material-icons">warning</i>
+                            <i class="material-icons checked-icon">check_circle</i>
+                        </div>
+                        <div class="risk-content">
+                            <div class="risk-phrase">${item.phrase}</div>
+                            <div class="risk-context">
+                                Found in transcript
+                                ${item.time ? `<span class="risk-time">${item.time}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="risk-progress"></div>
+                    `;
+                    
+                    riskElement.onclick = () => {
+                        highlightRiskInText(item.matchIndex);
+                        // Toggle checked state
+                        riskElement.classList.toggle('checked');
+                        // Play sound
+                        checkSound.currentTime = 0;
+                        checkSound.play();
+                        // Update the checkedRisks array for this file
+                        const checkedIndex = uploadedFiles[fileIndex].checkedRisks.indexOf(itemIndex);
+                        if (checkedIndex === -1) {
+                            uploadedFiles[fileIndex].checkedRisks.push(itemIndex);
+                        } else {
+                            uploadedFiles[fileIndex].checkedRisks.splice(checkedIndex, 1);
+                        }
+                        saveCheckedState();
+                        checkAllRisksCompleted();
+                    };
+                    
+                    riskList.appendChild(riskElement);
+                });
+            }
+            
+            // Update summary stats
+            document.getElementById('totalRisks').textContent = riskItems.length;
+            document.getElementById('uniqueRisks').textContent = new Set(riskItems.map(item => item.phrase.toLowerCase())).size;
+            document.getElementById('firstRiskTime').textContent = riskItems[0]?.time || '--:--:--';
+            document.getElementById('lastRiskTime').textContent = riskItems[riskItems.length - 1]?.time || '--:--:--';
+            
+            // Highlight risks in original text
+            highlightRisksInTranscript(riskItems);
+            
+            // Show results
+            document.getElementById('resultsContainer').style.display = 'block';
+        }
+        
+       function highlightRisksInTranscript(riskItems) {
+    const textarea = document.getElementById('transcriptInput');
+    const text = textarea.value;
+    
+    // Remove any existing highlight container
+    const existingHighlight = document.getElementById('highlightContainer');
+    if (existingHighlight) {
+        existingHighlight.remove();
+    }
+    
+    // If no risks and no text, return early
+    if ((!riskItems || riskItems.length === 0) && !text) return;
+    
+    // Create a document fragment to work with
+    const fragment = document.createElement('div');
+    
+    // If we have risks, process them
+    if (riskItems && riskItems.length > 0) {
+        const regex = new RegExp(riskyPhrases.join("|"), "gi");
+        let lastIndex = 0;
+        const matches = [...text.matchAll(regex)];
+        
+        matches.forEach((match, matchIndex) => {
+            // Add text before match
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+            
+            // Add highlighted match
+            const highlight = document.createElement('span');
+            highlight.className = 'highlight';
+            highlight.textContent = match[0];
+            highlight.onclick = () => {
+                // Remove active class from all highlights
+                document.querySelectorAll('.highlight').forEach(el => {
+                    el.classList.remove('active');
+                });
+                // Add active class to clicked highlight
+                highlight.classList.add('active');
+                
+                // Find corresponding risk item and scroll to it
+                const riskItem = document.querySelectorAll('.risk-item')[matchIndex];
+                if (riskItem) {
+                    riskItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    // Flash the risk item
+                    riskItem.style.backgroundColor = 'rgba(0, 173, 181, 0.2)';
+                    setTimeout(() => {
+                        riskItem.style.backgroundColor = '';
+                    }, 2000);
+                }
+            };
+            fragment.appendChild(highlight);
+            
+            lastIndex = match.index + match[0].length;
+        });
+        
+        // Add remaining text
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+    } else {
+        // Just show the plain text if no risks
+        fragment.appendChild(document.createTextNode(text));
+    }
+    
+    // Only update if we have text
+    if (text) {
+        textarea.style.display = 'none';
+        
+        const highlightContainer = document.createElement('div');
+        highlightContainer.id = 'highlightContainer';
+        highlightContainer.className = 'container';
+        highlightContainer.style.marginTop = '-20px';
+        highlightContainer.style.padding = '15px';
+        highlightContainer.style.backgroundColor = 'white';
+        highlightContainer.style.borderRadius = '4px';
+        highlightContainer.style.border = '1px solid #ddd';
+        
+        // Only show the helper text if we have risks
+        if (riskItems && riskItems.length > 0) {
+            highlightContainer.innerHTML = `
+                <div style="font-size: 14px; color: var(--dark-gray); margin-bottom: 10px;">
+                    <i class="material-icons" style="vertical-align: middle; color: var(--warning);">highlight</i>
+                    Click highlighted phrases to jump to their risk entries
+                </div>
+                <div style="white-space: pre-wrap;"></div>
+            `;
+        } else {
+            highlightContainer.innerHTML = `
+                <div style="white-space: pre-wrap;"></div>
+            `;
+        }
+        
+        highlightContainer.querySelector('div:last-child').appendChild(fragment);
+        textarea.parentNode.insertBefore(highlightContainer, textarea.nextSibling);
+    } else {
+        textarea.style.display = 'block';
+    }
+}
+        
+        function highlightRiskInText(matchIndex) {
+            // Remove active class from all highlights
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Add active class to corresponding highlight
+            const highlights = document.querySelectorAll('.highlight');
+            if (highlights.length > matchIndex) {
+                highlights[matchIndex].classList.add('active');
+                highlights[matchIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        function copyResults() {
+            // Check if we have uploaded files or just a single transcript
+            const hasMultipleFiles = uploadedFiles.length > 0;
+            let allRiskItems = [];
+            
+            if (hasMultipleFiles) {
+                // Combine risks from all files
+                uploadedFiles.forEach(file => {
+                    allRiskItems = allRiskItems.concat(file.risks);
+                });
+            } else {
+                // Get risks from current single transcript
+                const riskElements = document.querySelectorAll('.risk-item');
+                riskElements.forEach(item => {
+                    allRiskItems.push({
+                        phrase: item.querySelector('.risk-phrase').textContent,
+                        time: item.querySelector('.risk-time')?.textContent || 'no timestamp'
+                    });
+                });
+            }
+
+            if (allRiskItems.length === 0) {
+                alert('No risks found to copy');
+                return;
+            }
+            
+            // Format just the risk items
+            let textToCopy = '';
+            allRiskItems.forEach(item => {
+                textToCopy += `⚠️ "${item.phrase}" at [${item.time}]\n`;
+            });
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="material-icons">check</i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // Enhanced double click to scroll to top/bottom feature
+        document.addEventListener('dblclick', function(e) {
+            // List of elements to ignore
+            const ignoreElements = ['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'LABEL', 'I', 'SPAN', 'DIV'];
+            
+            // Check if clicked element or any of its parents should be ignored
+            let shouldIgnore = false;
+            let target = e.target;
+            
+            while (target && target !== document.body) {
+                if (ignoreElements.includes(target.tagName) || 
+                    target.classList.contains('risk-item') || 
+                    target.classList.contains('file-item')) {
+                    shouldIgnore = true;
+                    break;
+                }
+                target = target.parentElement;
+            }
+            
+            if (shouldIgnore) return;
+
+            // Check if click is outside main containers or on body background
+            const mainContainers = document.querySelectorAll('.container');
+            const clickedOnBackground = e.target === document.body || 
+                                      e.target === document.documentElement ||
+                                      !Array.from(mainContainers).some(container => container.contains(e.target));
+
+            if (clickedOnBackground) {
+                const scrollPosition = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                const scrollThreshold = 150; // Increased threshold
+
+                // If near bottom (within threshold), scroll to top
+                if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                } 
+                // If near top (within threshold), scroll to bottom
+                else if (scrollPosition <= scrollThreshold) {
+                    window.scrollTo({
+                        top: documentHeight,
+                        behavior: 'smooth'
+                    });
+                }
+                // In middle - scroll to whichever end is closer
+                else {
+                    const distanceToTop = scrollPosition;
+                    const distanceToBottom = documentHeight - (scrollPosition + windowHeight);
+                    
+                    window.scrollTo({
+                        top: distanceToTop < distanceToBottom ? 0 : documentHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+        // Toggle dark mode for transcript only
+// Dark mode toggle with localStorage
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+
+// Check for saved theme preference
+const savedTheme = localStorage.getItem('darkTranscript');
+if (savedTheme === 'true') {
+    document.body.classList.add('dark-transcript');
+    themeToggle.checked = true;
+    themeIcon.textContent = 'dark_mode';
+}
+
+themeToggle.addEventListener('change', function() {
+    if (this.checked) {
+        document.body.classList.add('dark-transcript');
+        themeIcon.textContent = 'dark_mode';
+        localStorage.setItem('darkTranscript', 'true');
+    } else {
+        document.body.classList.remove('dark-transcript');
+        themeIcon.textContent = 'light_mode';
+        localStorage.setItem('darkTranscript', 'false');
+    }
+});
+function switchLanguage(lang) {
+    if (lang === 'en') {
+        window.location.href = 'https://qcanalayzer007.github.io/QC-ENG-VER/';
+    } else if (lang === 'jp') {
+        window.location.href = 'https://qcanalayzer007.github.io/QC-JAPANESE-VER./';
+    } else if (lang === 'kr') {
+        window.location.href = 'https://qcanalayzer007.github.io/QC-KOREAN-VER/';
+    }
+}
+function showTranscript() {
+    const transcript = document.getElementById('transcriptInput').value.trim();
+    if (!transcript) return;
+    
+    // Create a temporary array to trigger highlighting
+    const tempRisks = [
+        {
+            phrase: "",
+            time: null,
+            index: 0,
+            matchIndex: 0
+        }
+    ];
+    
+    highlightRisksInTranscript(tempRisks);
+    
+    // Scroll to the transcript
+    const highlightContainer = document.getElementById('highlightContainer');
+    if (highlightContainer) {
+        highlightContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Remove the button after showing
+    const expandContainer = document.querySelector('.expand-transcript-container');
+    if (expandContainer) {
+        expandContainer.remove();
+    }
+}
+async function submitKeyword() {
+    const name = document.getElementById('userName').value.trim();
+    const keyword = document.getElementById('newKeyword').value.trim();
+    const url = 'https://script.google.com/macros/s/AKfycbzPvc6uLorvGmf9Neib6W3aAAC1FUOFQQZCHd0YRSEycjNsCmAPBJAv6JBYSRXorNsV/exec'; // 🔁 Replace this with your actual Google Apps Script Web App URL
+
+    if (!name || !keyword) {
+        alert("Please fill in both your name and a keyword.");
+        return;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({ name, keyword }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const text = await response.text();
+        if (text === "Success") {
+            alert("Keyword submitted successfully!");
+            document.getElementById('newKeyword').value = '';
+        } else {
+            alert("Something went wrong. Try again.");
+        }
+    } catch (err) {
+        alert("Error connecting to Google Sheets: " + err.message);
+    }
+}
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
