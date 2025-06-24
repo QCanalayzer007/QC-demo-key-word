@@ -750,6 +750,134 @@
 .lang-option:hover img {
     filter: brightness(1.1);
 }
+ .user-input-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 999;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 173, 181, 0.2);
+        width: 280px;
+        backdrop-filter: blur(5px);
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .user-input-container:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group .material-icons {
+        position: absolute;
+        left: 10px;
+        color: var(--dark-gray);
+        font-size: 20px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 10px 10px 35px;
+        border: 1px solid rgba(57, 62, 70, 0.2);
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: white;
+        color: var(--dark);
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(0, 173, 181, 0.2);
+        outline: none;
+    }
+
+    .submit-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #008a91;
+        transform: translateY(-1px);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .submit-message {
+        margin-top: 12px;
+        font-size: 13px;
+        text-align: center;
+        padding: 8px;
+        border-radius: 4px;
+        display: none;
+    }
+
+    /* Dark mode support */
+    .dark-transcript .user-input-container {
+        background: rgba(30, 30, 46, 0.95);
+        border-color: rgba(0, 173, 181, 0.3);
+    }
+
+    .dark-transcript .form-input {
+        background-color: #2a2a3a;
+        color: #e0e0e0;
+        border-color: #444;
+    }
+
+    .dark-transcript .input-group .material-icons {
+        color: rgba(224, 224, 224, 0.7);
+    }
+
+    /* Collapse/expand toggle */
+    .toggle-input-container {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: none;
+        border: none;
+        color: var(--dark-gray);
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .dark-transcript .toggle-input-container {
+        color: rgba(224, 224, 224, 0.7);
+    }
+
+    @media (max-width: 768px) {
+        .user-input-container {
+            position: static;
+            width: 100%;
+            margin-bottom: 20px;
+            box-shadow: none;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    }
+    
 
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -779,6 +907,20 @@
     <span>KR</span>
   </div>
 </div>
+<div id="userInputContainer" class="user-input-container">
+    <div class="input-group">
+        <i class="material-icons">person</i>
+        <input type="text" id="usernameInput" placeholder="Your name" class="form-input">
+    </div>
+    <div class="input-group">
+        <i class="material-icons">add_circle</i>
+        <input type="text" id="newKeywordInput" placeholder="Suggest new keyword" class="form-input">
+    </div>
+    <button onclick="submitKeyword()" class="submit-btn">
+        <i class="material-icons">send</i> Submit Keyword
+    </button>
+    <div id="submitMessage" class="submit-message"></div>
+</div>
 
 
     <div class="container">
@@ -800,15 +942,6 @@
                     <i class="material-icons">search</i> Analyze Transcript
                 </button>
             </div>
-            <div style="margin-top: 20px;">
-    <h3>Add Your Own Risky Keyword</h3>
-    <input type="text" id="userName" placeholder="Your name" style="margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-    <input type="text" id="newKeyword" placeholder="Enter new keyword/phrase" style="margin-bottom: 10px; width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-    <button class="btn" onclick="submitKeyword()" style="margin-top: 10px;">
-        <i class="material-icons">send</i> Submit Keyword
-    </button>
-</div>
-
             
             <div id="fileList" class="file-list" style="display: none;">
                 <h3 style="margin-top: 0; margin-bottom: 10px;">Uploaded Files</h3>
@@ -1658,36 +1791,173 @@ function showTranscript() {
         expandContainer.remove();
     }
 }
-async function submitKeyword() {
-    const name = document.getElementById('userName').value.trim();
-    const keyword = document.getElementById('newKeyword').value.trim();
-    const url = 'https://script.google.com/macros/s/AKfycbwPUnZP5knw5zWXZ027kybfARZU5T4vHw7ut7x8HIGUSl1CtPE5ZAOVgjc79FB-1lA2/exec'; // 🔁 Replace this with your actual Google Apps Script Web App URL
-
-    if (!name || !keyword) {
-        alert("Please fill in both your name and a keyword.");
-        return;
+function toggleInputContainer() {
+        const container = document.getElementById('userInputContainer');
+        container.style.display = container.style.display === 'none' ? 'block' : 'none';
     }
 
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            body: JSON.stringify({ name, keyword }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const text = await response.text();
-        if (text === "Success") {
-            alert("Keyword submitted successfully!");
-            document.getElementById('newKeyword').value = '';
-        } else {
-            alert("Something went wrong. Try again.");
+    // Enhanced submit function
+    function submitKeyword() {
+        const username = document.getElementById('usernameInput').value.trim();
+        const keyword = document.getElementById('newKeywordInput').value.trim();
+        const messageEl = document.getElementById('submitMessage');
+        
+        // Clear previous messages
+        messageEl.style.display = 'none';
+        
+        if (!username) {
+            showMessage('Please enter your name', 'error');
+            document.getElementById('usernameInput').focus();
+            return;
         }
-    } catch (err) {
-        alert("Error connecting to Google Sheets: " + err.message);
+        
+        if (!keyword) {
+            showMessage('Please enter a keyword to suggest', 'error');
+            document.getElementById('newKeywordInput').focus();
+            return;
+        }
+        
+        if (keyword.length < 3) {
+            showMessage('Keyword must be at least 3 characters', 'error');
+            return;
+        }
+        
+        // Case-insensitive check
+        const lowerCaseKeywords = riskyPhrases.map(phrase => phrase.toLowerCase());
+        if (lowerCaseKeywords.includes(keyword.toLowerCase())) {
+            showMessage('This keyword already exists', 'warning');
+            return;
+        }
+        
+        // Prepare data
+        const data = {
+            username: username,
+            keyword: keyword,
+            timestamp: new Date().toISOString(),
+            page: window.location.href
+        };
+        
+        // Show loading state
+        showMessage('Submitting...', 'info');
+        
+        // Send to Google Sheet
+        fetch(scriptUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            showMessage('Keyword submitted successfully!', 'success');
+            document.getElementById('newKeywordInput').value = '';
+            
+            // Add to local list (temporary)
+            riskyPhrases.push(keyword);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Error submitting. Please try again.', 'error');
+        });
     }
-}
+    
+    function showMessage(text, type) {
+        const messageEl = document.getElementById('submitMessage');
+        messageEl.textContent = text;
+        messageEl.style.display = 'block';
+        
+        // Reset all color classes
+        messageEl.classList.remove('message-error', 'message-success', 'message-warning', 'message-info');
+        
+        // Add appropriate class
+        switch(type) {
+            case 'error':
+                messageEl.classList.add('message-error');
+                messageEl.style.color = 'var(--danger)';
+                break;
+            case 'success':
+                messageEl.classList.add('message-success');
+                messageEl.style.color = 'var(--success)';
+                break;
+            case 'warning':
+                messageEl.classList.add('message-warning');
+                messageEl.style.color = 'var(--warning)';
+                break;
+            default: // info
+                messageEl.classList.add('message-info');
+                messageEl.style.color = 'var(--dark-gray)';
+        }
+        
+        // Auto-hide after 3 seconds unless it's an error
+        if (type !== 'error') {
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+    }
+     const scriptUrl = 'https://script.google.com/macros/s/AKfycbyBqryJorjKJ83xcqvqcWV3CJANJX8qaSxT6prvcIUoBfgaXw0AroTe82d5GsARQAB7/exec';
+
+    function submitKeyword() {
+        const username = document.getElementById('usernameInput').value.trim();
+        const keyword = document.getElementById('newKeywordInput').value.trim();
+        const messageEl = document.getElementById('submitMessage');
+
+        if (!username || !keyword) {
+            messageEl.textContent = 'Please enter both your name and a keyword';
+            messageEl.style.color = 'var(--danger)';
+            messageEl.style.display = 'block';
+            return;
+        }
+
+        // Check if keyword is already in the list
+        if (riskyPhrases.includes(keyword.toLowerCase())) {
+            messageEl.textContent = 'This keyword already exists in our database';
+            messageEl.style.color = 'var(--warning)';
+            messageEl.style.display = 'block';
+            return;
+        }
+
+        // Prepare data to send
+        const data = {
+            username: username,
+            keyword: keyword,
+            timestamp: new Date().toISOString()
+        };
+
+        // Show loading state
+        messageEl.textContent = 'Submitting...';
+        messageEl.style.color = 'var(--dark-gray)';
+        messageEl.style.display = 'block';
+
+        // Send to Google Sheet
+        fetch(scriptUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            messageEl.textContent = 'Keyword submitted successfully!';
+            messageEl.style.color = 'var(--success)';
+            document.getElementById('newKeywordInput').value = '';
+            
+            // Add the new keyword to the local list (won't persist after refresh)
+            riskyPhrases.push(keyword.toLowerCase());
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messageEl.textContent = 'Error submitting keyword. Please try again.';
+            messageEl.style.color = 'var(--danger)';
+        })
+        .finally(() => {
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        });
+    }
 
     </script>
 </body>
